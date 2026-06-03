@@ -1,4 +1,6 @@
-﻿using Ludwig.Data.Models;
+﻿using Ludwig.Data.Interfaces;
+using Ludwig.Data.Models;
+using Ludwig.Data.Services;
 using Microsoft.EntityFrameworkCore;
 namespace Ludwig.Api.Extensions;
 
@@ -6,7 +8,6 @@ public static class ApplicationExtensions
 {
     public static void ConfigureSystemServices(this WebApplicationBuilder builder, string MyAllowSpecificOrigins)
     {
-
 
         builder.Services.AddCors(options =>
         {
@@ -19,6 +20,9 @@ public static class ApplicationExtensions
         builder.Services.AddDbContext<BookingSystemContext>(
             options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("BookingLudwigContext")));
+
+        builder.Services.AddScoped<IDatiPrenotazione, ServizioDatiPrenotazione>();
+
         ;
     }
 
