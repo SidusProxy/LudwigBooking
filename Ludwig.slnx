@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Ludwig.Api/Ludwig.Api.csproj" />
+    <Project Path="src/Ludwig.Data/Ludwig.Data.csproj" />
+    <Project Path="src/Ludwig.Domain​/Ludwig.Domain​.csproj" />
+    <Project Path="src/Ludwig.Grpc/Ludwig.Grpc.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ludwig.Tests/Ludwig.Tests.csproj" />
+  </Folder>
+</Solution>
