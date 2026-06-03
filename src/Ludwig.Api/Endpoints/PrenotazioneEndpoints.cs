@@ -1,7 +1,6 @@
 ﻿using Ludwig.Data.DTO;
 using Ludwig.Data.Interfaces;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
+using Ludwig.Domain.Extensions;
 namespace Ludwig.Api.Endpoints;
 
     public static class PrenotazioneEndpoints
@@ -37,6 +36,9 @@ namespace Ludwig.Api.Endpoints;
         grp.MapPost("/", async (PrenotazioneCreaDTO prenotazione, IDatiPrenotazione datiPrenotazioni) =>
         {
             if (prenotazione == null) { return Results.BadRequest(); }
+            if (!prenotazione.CheckDomainConditions()) {
+                return Results.BadRequest();
+            }
             var p = await datiPrenotazioni.CreaPrenotazioneAsync(prenotazione);
             if (p is null) return Results.NotFound();
             return Results.Created($"/categorie/{p.Id}", p);
@@ -50,11 +52,16 @@ namespace Ludwig.Api.Endpoints;
         {
             if (prenotazione == null) { return Results.BadRequest(); }
             if (id != prenotazione.Id) { return Results.BadRequest(); }
+            if (!prenotazione.CheckDomainConditions())
+            {
+                return Results.BadRequest();
+            }
             var boolean = await datiPrenotazioni.ModificaPrenotazioneAsync(prenotazione);
             if (boolean == false)
             {
                 return Results.NotFound();
             }
+
             return Results.NoContent();
         }).Produces(StatusCodes.Status204NoContent)
      .Produces(StatusCodes.Status400BadRequest)
@@ -76,6 +83,13 @@ namespace Ludwig.Api.Endpoints;
      .Produces(StatusCodes.Status500InternalServerError);
 
 
+        grp.MapGet("/users/{id:int}", async (int id,IDatiPrenotazione datiPrenotazioni) =>
+        {
+            var prenotazioni = await datiPrenotazioni.EstraiTutteUserIdAsync(id);
+            if (prenotazioni is null)
+                return Results.NotFound();
+            return Results.Ok(prenotazioni);
+        }).Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
 
 
 
