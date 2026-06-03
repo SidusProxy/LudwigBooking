@@ -6,9 +6,9 @@ public interface IDatiPrenotazione
 {
     Task<IEnumerable<PrenotazioneDTO>?> EstraiTutteAsync();
     Task<IEnumerable<PrenotazioneDTO>?> EstraiTutteUserIdAsync(int id);
-    Task CreaPrenotazioneAsync(PrenotazioneCreaDTO prenotazione);
-    Task ModificaPrenotazioneAsync(PrenotazioneAggiornaDTO prenotazione);
+    Task<PrenotazioneDTO> CreaPrenotazioneAsync(PrenotazioneCreaDTO prenotazione);
+    Task<bool> ModificaPrenotazioneAsync(PrenotazioneAggiornaDTO prenotazione);
     Task<PrenotazioneDTO?> EstraiPerIdAsync(int id);
-    Task EliminaPrenotazioneAsync(int id);
+    Task<bool> EliminaPrenotazioneAsync(int id);
 
 }

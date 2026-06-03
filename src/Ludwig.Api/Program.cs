@@ -1,4 +1,5 @@
 
+using Ludwig.Api.Endpoints;
 using Ludwig.Api.Extensions;
 
 var MyAllowSpecificOrigins = "myOrigin";
@@ -23,6 +24,6 @@ app.MapGet("/test", () =>
 {
     return "Hello World!";
 });
-
+app.RegistraEndpointPrenotazioni();
 app.Run();
 
