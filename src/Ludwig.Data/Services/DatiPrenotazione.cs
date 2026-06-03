@@ -17,19 +17,23 @@ public class ServizioDatiPrenotazione : IDatiPrenotazione
 
     public BookingSystemContext Database { get; }
 
-    public Task CreaPrenotazioneAsync(PrenotazioneCreaDTO prenotazione)
+    public async Task CreaPrenotazioneAsync(PrenotazioneCreaDTO prenotazione)
     {
-        throw new NotImplementedException();
+        Database.Prenotazione.Add(prenotazione.FromDTO());
+        await Database.SaveChangesAsync();
     }
 
-    public Task EliminaPrenotazioneAsync(int id)
+    public async Task EliminaPrenotazioneAsync(int id)
     {
-        throw new NotImplementedException();
+        Database.Prenotazione.Remove(new Prenotazione() { Id = id });
+        await Database.SaveChangesAsync();
     }
 
     public Task ModificaPrenotazioneAsync(PrenotazioneAggiornaDTO prenotazione)
     {
-        throw new NotImplementedException();
+       var prenotazioneDB = prenotazione.FromDTO();
+        Database.Prenotazione.Update(prenotazioneDB);
+        return Database.SaveChangesAsync();
     }
 
     public async Task<PrenotazioneDTO?> EstraiPerIdAsync(int id)
@@ -50,5 +54,15 @@ public class ServizioDatiPrenotazione : IDatiPrenotazione
             .Select(p => p.ToDTO())
             .ToListAsync();
 
+    }
+
+    public async Task<IEnumerable<PrenotazioneDTO>?> EstraiTutteUserIdAsync(int id)
+    {
+        return await Database.Prenotazione
+                   .Include(p => p.UtenteId)
+                   .Include(p => p.Risorsa)
+                   .Select(p => p.ToDTO())
+                   .Where(p => p.UtenteId == id)
+                   .ToListAsync();
     }
 }
