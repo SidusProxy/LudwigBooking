@@ -12,6 +12,7 @@ public partial class Utente
     public string Nome { get; set; }
 
     public string Email { get; set; }
+    public string Pass { get; set; }
 
     public string Dipartimento { get; set; }
 
