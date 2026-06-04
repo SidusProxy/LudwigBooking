@@ -25,6 +25,8 @@ public static class ApplicationExtensions
         builder.Services.AddTransient<JwtConfiguration>();
         builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.AddTransient<TokenService>();
+        builder.Services.AddTransient<AppUser>();
+        builder.Services.AddHttpContextAccessor();
 
     }
 

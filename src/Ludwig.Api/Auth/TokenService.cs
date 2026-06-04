@@ -15,12 +15,13 @@ public class TokenService
         _config = config;
     }
 
-    public string GenerateToken(string id, string email)
+    public string GenerateToken(string id, string email,string role)
     {
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, id),
             new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim("Role", role)
             // Add more claims if needed
         };
 

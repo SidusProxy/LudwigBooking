@@ -20,10 +20,12 @@ public static class LoginEndpoints
                 return Results.Unauthorized();
             }
           
-            var token = tokenService.GenerateToken(userId.ToString(), email);
+            var token = tokenService.GenerateToken(userId.ToString(), email,user.Ruolo);
 
             return Results.Ok(token);
         }).AllowAnonymous();
+
+     
     }
 
 }
