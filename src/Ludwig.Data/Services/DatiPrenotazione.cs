@@ -17,30 +17,44 @@ public class ServizioDatiPrenotazione : IDatiPrenotazione
 
     public BookingSystemContext Database { get; }
 
-    public async Task CreaPrenotazioneAsync(PrenotazioneCreaDTO prenotazione)
+    public async Task<PrenotazioneDTO> CreaPrenotazioneAsync(PrenotazioneCreaDTO prenotazione)
     {
-        Database.Prenotazione.Add(prenotazione.FromDTO());
+        var tmpPrenotazione = prenotazione.FromDTO();
+        Database.Prenotazione.Add(tmpPrenotazione);
         await Database.SaveChangesAsync();
+        return tmpPrenotazione.ToDTO();
     }
 
-    public async Task EliminaPrenotazioneAsync(int id)
+    public async Task<bool> EliminaPrenotazioneAsync(int id)
     {
+        var prenotazione = Database.Prenotazione
+            .Where(p => p.Id == id)
+            .FirstOrDefaultAsync();
+        if (prenotazione == null)
+            return false;
         Database.Prenotazione.Remove(new Prenotazione() { Id = id });
         await Database.SaveChangesAsync();
+        return true;
     }
 
-    public Task ModificaPrenotazioneAsync(PrenotazioneAggiornaDTO prenotazione)
+    public async Task<bool> ModificaPrenotazioneAsync(PrenotazioneAggiornaDTO prenotazione)
     {
-       var prenotazioneDB = prenotazione.FromDTO();
+        var prenotazioneDB = prenotazione.FromDTO();
+        var prenotazioneTmp = Database.Prenotazione
+            .Where(p => p.Id == prenotazioneDB.Id)
+            .FirstOrDefaultAsync();
+        if (prenotazioneTmp == null)
+            return false;
         Database.Prenotazione.Update(prenotazioneDB);
-        return Database.SaveChangesAsync();
+        Database.SaveChangesAsync();
+        return true;
     }
 
     public async Task<PrenotazioneDTO?> EstraiPerIdAsync(int id)
     {
         return await Database.Prenotazione
-            .Include(p => p.UtenteId)
-            .Include(p => p.Risorsa)
+             .Include("Utente")
+            .Include("Risorsa")
             .Select(p => p.ToDTO())
             .Where(p => p.Id == id)
             .FirstOrDefaultAsync();
@@ -49,8 +63,8 @@ public class ServizioDatiPrenotazione : IDatiPrenotazione
     public async Task<IEnumerable<PrenotazioneDTO>?> EstraiTutteAsync()
     {
         return await Database.Prenotazione
-            .Include(p => p.UtenteId)
-            .Include(p => p.Risorsa)
+            .Include("Utente")
+            .Include("Risorsa")
             .Select(p => p.ToDTO())
             .ToListAsync();
 
@@ -59,8 +73,8 @@ public class ServizioDatiPrenotazione : IDatiPrenotazione
     public async Task<IEnumerable<PrenotazioneDTO>?> EstraiTutteUserIdAsync(int id)
     {
         return await Database.Prenotazione
-                   .Include(p => p.UtenteId)
-                   .Include(p => p.Risorsa)
+                    .Include("Utente")
+                    .Include("Risorsa")
                    .Select(p => p.ToDTO())
                    .Where(p => p.UtenteId == id)
                    .ToListAsync();
