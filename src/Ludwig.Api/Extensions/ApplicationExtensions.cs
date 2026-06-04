@@ -1,4 +1,5 @@
-﻿using Ludwig.Data.Interfaces;
+﻿using Ludwig.Api.Exceptions;
+using Ludwig.Data.Interfaces;
 using Ludwig.Data.Models;
 using Ludwig.Data.Services;
 using Microsoft.EntityFrameworkCore;
@@ -22,8 +23,8 @@ public static class ApplicationExtensions
             options.UseSqlServer(builder.Configuration.GetConnectionString("BookingLudwigContext")));
 
         builder.Services.AddScoped<IDatiPrenotazione, ServizioDatiPrenotazione>();
-
-        ;
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        
     }
 
 
