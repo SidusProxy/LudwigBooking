@@ -1,4 +1,6 @@
-﻿using Ludwig.Api.Exceptions;
+﻿using JwtAuthApp.JWT;
+using Ludwig.Api.Auth;
+using Ludwig.Api.Exceptions;
 using Ludwig.Data.Interfaces;
 using Ludwig.Data.Models;
 using Ludwig.Data.Services;
@@ -18,21 +20,11 @@ public static class ApplicationExtensions
         builder.Services.AddDbContext<BookingSystemContext>(options =>options.UseSqlServer(builder.Configuration.GetConnectionString("BookingLudwigContext")));
 
         builder.Services.AddScoped<IDatiPrenotazione, ServizioDatiPrenotazione>();
+        builder.Services.AddScoped<IDatiUtenti, ServizioDatiUtenti>();
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>{
-        options.TokenValidationParameters = new TokenValidationParameters{
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["TokenHandler:iss"],
-            ValidAudience = builder.Configuration["TokenHandler:aud"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_super_secret_key"))
-        };
-    });
-
-        builder.Services.AddAuthorization();
+        builder.Services.AddTransient<JwtConfiguration>();
+        builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.AddTransient<TokenService>();
 
     }
 

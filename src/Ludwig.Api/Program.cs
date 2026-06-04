@@ -25,5 +25,6 @@ app.UseAuthorization();
 
 app.UseExceptionHandler(o => { });
 app.RegistraEndpointPrenotazioni();
+app.RegistraEndpointLogin();
 app.Run();
 
