@@ -10,5 +10,5 @@ public interface IDatiPrenotazione
     Task<bool> ModificaPrenotazioneAsync(PrenotazioneAggiornaDTO prenotazione);
     Task<PrenotazioneDTO?> EstraiPerIdAsync(int id);
     Task<bool> EliminaPrenotazioneAsync(int id);
-
+    Task<IEnumerable<PrenotazioneDTO>?> EstraiOverlappingAsync(PrenotazioneDTO prenotazione);
 }

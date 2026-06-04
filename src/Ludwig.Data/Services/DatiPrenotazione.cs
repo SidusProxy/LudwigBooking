@@ -79,4 +79,14 @@ public class ServizioDatiPrenotazione : IDatiPrenotazione
                    .Where(p => p.UtenteId == id)
                    .ToListAsync();
     }
+
+    public async Task<IEnumerable<PrenotazioneDTO>?> EstraiOverlappingAsync(PrenotazioneDTO prenotazione)
+    {
+        return await Database.Prenotazione
+                    .Include("Utente")
+                    .Include("Risorsa")
+                   .Select(p => p.ToDTO())
+                   .Where(p => p.UtenteId != prenotazione.Id && ((p.A<=prenotazione.A && p.A >= prenotazione.Da) || (p.Da <= prenotazione.A && p.Da >= prenotazione.Da)))
+                   .ToListAsync();
+    }
 }

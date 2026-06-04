@@ -83,12 +83,21 @@ namespace Ludwig.Api.Endpoints;
      .Produces(StatusCodes.Status500InternalServerError);
 
 
-        grp.MapGet("/users/{id:int}", async (int id,IDatiPrenotazione datiPrenotazioni) =>
+        grp.MapGet("/utenti/{id:int}", async (int id,IDatiPrenotazione datiPrenotazioni) =>
         {
             var prenotazioni = await datiPrenotazioni.EstraiTutteUserIdAsync(id);
             if (prenotazioni is null)
                 return Results.NotFound();
             return Results.Ok(prenotazioni);
+        }).Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
+
+
+        grp.MapGet("/overlapping", async (PrenotazioneDTO prenotazione, IDatiPrenotazione datiPrenotazioni) =>
+        {
+            var prenotazioniOverlapping = await datiPrenotazioni.EstraiOverlappingAsync(prenotazione);
+            if (prenotazioniOverlapping is null)
+                return Results.NotFound();
+            return Results.Ok(prenotazioniOverlapping);
         }).Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
 
 
