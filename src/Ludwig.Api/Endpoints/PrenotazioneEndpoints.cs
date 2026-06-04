@@ -1,13 +1,14 @@
-﻿using Ludwig.Data.DTO;
+﻿using Ludwig.Api.Exceptions.ExceptionsClasses;
+using Ludwig.Data.DTO;
 using Ludwig.Data.Interfaces;
 using Ludwig.Domain.Extensions;
 namespace Ludwig.Api.Endpoints;
 
-    public static class PrenotazioneEndpoints
-    {
+public static class PrenotazioneEndpoints
+{
 
-        public static void RegistraEndpointPrenotazioni(this WebApplication webApplication)
-        {
+    public static void RegistraEndpointPrenotazioni(this WebApplication webApplication)
+    {
 
         var grp = webApplication.MapGroup("/prenotazioni");
         grp.MapGet("/", async (IDatiPrenotazione datiPrenotazioni) =>
@@ -16,7 +17,10 @@ namespace Ludwig.Api.Endpoints;
             if (prenotazioni is null)
                 return Results.NotFound();
             return Results.Ok(prenotazioni);
-        }).Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
+        })
+        .Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError);
 
 
         grp.MapGet("/{id:int}", async (int id, IDatiPrenotazione datiPrenotazioni) =>
@@ -27,20 +31,25 @@ namespace Ludwig.Api.Endpoints;
             }
             var categorie = await datiPrenotazioni.EstraiPerIdAsync(id);
             if (categorie is null)
-                return Results.NotFound();
+                throw new ItemNotFoundException($"La prenotazione con ID {id} non è stata trovata nei sistemi.");
             return Results.Ok(categorie);
-        }).Produces<PrenotazioneDTO>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
+        })
+        .Produces<PrenotazioneDTO>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError);
 
 
 
         grp.MapPost("/", async (PrenotazioneCreaDTO prenotazione, IDatiPrenotazione datiPrenotazioni) =>
         {
             if (prenotazione == null) { return Results.BadRequest(); }
-            if (!prenotazione.CheckDomainConditions()) {
-                return Results.BadRequest();
+            if (!prenotazione.CheckDomainConditions())
+            {
+                throw new IntegrityConditionException($"Una delle condizioni di integrità del sistema non viene rispettata dai parametri passati nel body");
+
             }
             var p = await datiPrenotazioni.CreaPrenotazioneAsync(prenotazione);
-            if (p is null) return Results.NotFound();
+            if (p is null) return Results.BadRequest();
             return Results.Created($"/categorie/{p.Id}", p);
         })
      .Produces<PrenotazioneDTO>(StatusCodes.Status201Created)
@@ -54,12 +63,12 @@ namespace Ludwig.Api.Endpoints;
             if (id != prenotazione.Id) { return Results.BadRequest(); }
             if (!prenotazione.CheckDomainConditions())
             {
-                return Results.BadRequest();
+                throw new IntegrityConditionException($"Una delle condizioni di integrità del sistema non viene rispettata dai parametri passati nel body");
             }
             var boolean = await datiPrenotazioni.ModificaPrenotazioneAsync(prenotazione);
             if (boolean == false)
             {
-                return Results.NotFound();
+                throw new ItemNotFoundException($"La prenotazione con ID {id} non è stata trovata nei sistemi.");
             }
 
             return Results.NoContent();
@@ -74,7 +83,7 @@ namespace Ludwig.Api.Endpoints;
             var boolean = await datiPrenotazioni.EliminaPrenotazioneAsync(id);
             if (boolean == false)
             {
-                return Results.NotFound();
+                throw new ItemNotFoundException($"La prenotazione con ID {id} non è stata trovata nei sistemi.");
             }
             return Results.NoContent();
         }).Produces(StatusCodes.Status204NoContent)
@@ -83,22 +92,28 @@ namespace Ludwig.Api.Endpoints;
      .Produces(StatusCodes.Status500InternalServerError);
 
 
-        grp.MapGet("/utenti/{id:int}", async (int id,IDatiPrenotazione datiPrenotazioni) =>
+        grp.MapGet("/utenti/{id:int}", async (int id, IDatiPrenotazione datiPrenotazioni) =>
         {
             var prenotazioni = await datiPrenotazioni.EstraiTutteUserIdAsync(id);
             if (prenotazioni is null)
-                return Results.NotFound();
+                throw new ItemNotFoundException($"Questo utente non ha prenotazioni");
             return Results.Ok(prenotazioni);
-        }).Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
+        })
+        .Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError);
 
 
-        grp.MapGet("/overlapping", async (PrenotazioneDTO prenotazione, IDatiPrenotazione datiPrenotazioni) =>
+        grp.MapPost("/overlapping", async (PrenotazioneDTO prenotazione, IDatiPrenotazione datiPrenotazioni) =>
         {
             var prenotazioniOverlapping = await datiPrenotazioni.EstraiOverlappingAsync(prenotazione);
             if (prenotazioniOverlapping is null)
-                return Results.NotFound();
+                throw new ItemNotFoundException("Non esistono prenotazioni che si overlappano");
             return Results.Ok(prenotazioniOverlapping);
-        }).Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).Produces(StatusCodes.Status500InternalServerError);
+        })
+        .Produces<List<PrenotazioneDTO>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError);
 
 
 
