@@ -24,6 +24,8 @@ app.MapGet("/test", () =>
 {
     return "Hello World!";
 });
+
+app.UseExceptionHandler(o => { });
 app.RegistraEndpointPrenotazioni();
 app.Run();
 
